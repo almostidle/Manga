@@ -30,40 +30,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /trending - Trending manga page
-router.get('/trending', async (req, res) => {
-  try {
-    const period = req.query.period || 'all';
-    let dateFilter = {};
-    
-    // Calculate date ranges for filtering
-    const now = new Date();
-    if (period === 'week') {
-      const weekAgo = new Date(now.setDate(now.getDate() - 7));
-      dateFilter = { updatedAt: { $gte: weekAgo } };
-    } else if (period === 'month') {
-      const monthAgo = new Date(now.setMonth(now.getMonth() - 1));
-      dateFilter = { updatedAt: { $gte: monthAgo } };
-    }
-    
-    const trendingManga = await Manga.find(dateFilter)
-      .sort({ viewCount: -1, averageRating: -1 })
-      .limit(20);
-
-    res.render('trending', { 
-      title: 'Trending Manga',
-      manga: trendingManga,
-      currentPeriod: period
-    });
-  } catch (error) {
-    console.error(error);
-    res.render('trending', { 
-      title: 'Trending Manga',
-      manga: [],
-      currentPeriod: 'all'
-    });
-  }
-});
+// NOTE: Trending page removed - route intentionally omitted
 
 // GET /top-rated - Top rated manga page
 router.get('/top-rated', async (req, res) => {
@@ -113,6 +80,73 @@ router.get('/search', async (req, res) => {
       query: '',
       results: []
     });
+  }
+});
+
+// GET /search/suggestions - JSON autocomplete suggestions
+router.get('/search/suggestions', async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    if (!q) return res.json([]);
+
+    // Find candidate documents by loose regex (title / author / genres)
+    const candidates = await Manga.find({
+      $or: [
+        { title: { $regex: q, $options: 'i' } },
+        { author: { $regex: q, $options: 'i' } },
+        { genres: { $regex: q, $options: 'i' } }
+      ]
+    }).limit(50).lean();
+
+    const qLower = q.toLowerCase();
+
+    // Simple Levenshtein distance for basic fuzzy ranking
+    function levenshtein(a, b) {
+      const m = a.length, n = b.length;
+      const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+      for (let i = 0; i <= m; i++) dp[i][0] = i;
+      for (let j = 0; j <= n; j++) dp[0][j] = j;
+      for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+          const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+          dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
+        }
+      }
+      return dp[m][n];
+    }
+
+    // Score candidates by simple heuristics then by fuzzy distance
+    const scored = candidates.map(c => {
+      const title = (c.title || '').toString();
+      const author = (c.author || '').toString();
+      const titleLower = title.toLowerCase();
+      let score = 0;
+
+      if (titleLower.startsWith(qLower)) score += 200;
+      else if (titleLower.includes(qLower)) score += 150;
+
+      if (author.toLowerCase().includes(qLower)) score += 60;
+
+      // Subtract normalized edit distance (lower is better)
+      const dist = levenshtein(titleLower, qLower);
+      score -= dist;
+
+      return { doc: c, score };
+    });
+
+    scored.sort((a, b) => b.score - a.score);
+
+    const top = scored.slice(0, 8).map(s => ({
+      id: s.doc._id,
+      title: s.doc.title,
+      author: s.doc.author || '',
+      cover: s.doc.cover || ''
+    }));
+
+    res.json(top);
+  } catch (error) {
+    console.error('Suggestion error', error);
+    res.status(500).json([]);
   }
 });
 

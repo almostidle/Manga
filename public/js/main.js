@@ -12,6 +12,247 @@ document.addEventListener('DOMContentLoaded', function() {
   initImageErrorHandling();
 });
 
+
+document.addEventListener('DOMContentLoaded', function() {
+  
+document.addEventListener('DOMContentLoaded', () => {
+    initDotGrid();
+});
+
+function initDotGrid() {
+    const canvas = document.getElementById('dot-grid-canvas');
+    const container = document.getElementById('dot-grid-container');
+    
+    if (!canvas || !container) return;
+
+    const ctx = canvas.getContext('2d');
+    
+    // CONFIGURATION (Adjust colors here)
+    const config = {
+        dotSize: 4,          // Smaller dots look better in BG
+        gap: 30,             // Spacing
+        baseColor: '#1a1a1a',// Subtle dark grey (blends with bg)
+        activeColor: '#ff003c', // Your theme RED
+        proximity: 150,      // How close mouse needs to be to color
+        shockRadius: 200,    // Click radius
+        shockStrength: 10,   // Click power
+        returnSpeed: 0.1,    // How fast dots go back
+        friction: 0.90       // Physics friction
+    };
+
+    let dots = [];
+    let width, height;
+    
+    // Mouse State
+    const mouse = { x: -1000, y: -1000, lastX: -1000, lastY: -1000, vx: 0, vy: 0 };
+    
+    // Color Helpers
+    const hexToRgb = (hex) => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    };
+    
+    const baseRgb = hexToRgb(config.baseColor);
+    const activeRgb = hexToRgb(config.activeColor);
+
+    // Resize Handler
+    function resize() {
+        const rect = container.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        
+        width = rect.width;
+        height = rect.height;
+        
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+        
+        ctx.scale(dpr, dpr);
+        
+        createDots();
+    }
+
+    // Create Grid
+    function createDots() {
+        dots = [];
+        const cols = Math.floor((width + config.gap) / (config.dotSize + config.gap));
+        const rows = Math.floor((height + config.gap) / (config.dotSize + config.gap));
+        
+        const startX = (width - (cols * (config.dotSize + config.gap) - config.gap)) / 2;
+        const startY = (height - (rows * (config.dotSize + config.gap) - config.gap)) / 2;
+
+        for (let i = 0; i < cols; i++) {
+            for (let j = 0; j < rows; j++) {
+                dots.push({
+                    originX: startX + i * (config.dotSize + config.gap),
+                    originY: startY + j * (config.dotSize + config.gap),
+                    x: startX + i * (config.dotSize + config.gap),
+                    y: startY + j * (config.dotSize + config.gap),
+                    vx: 0,
+                    vy: 0
+                });
+            }
+        }
+    }
+
+    // Interaction Handlers
+    window.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const nowX = e.clientX - rect.left;
+        const nowY = e.clientY - rect.top;
+
+        // Calculate velocity
+        mouse.vx = (nowX - mouse.lastX) * 0.5; // Sensitivity
+        mouse.vy = (nowY - mouse.lastY) * 0.5;
+
+        mouse.lastX = nowX;
+        mouse.lastY = nowY;
+        mouse.x = nowX;
+        mouse.y = nowY;
+
+        // Apply mouse momentum to nearby dots
+        dots.forEach(dot => {
+            const dx = dot.x - mouse.x;
+            const dy = dot.y - mouse.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < config.proximity) {
+                // Push dots based on mouse velocity
+                const force = (config.proximity - dist) / config.proximity;
+                dot.vx += mouse.vx * force * 0.5;
+                dot.vy += mouse.vy * force * 0.5;
+            }
+        });
+    });
+
+    window.addEventListener('click', () => {
+        dots.forEach(dot => {
+            const dx = dot.x - mouse.x;
+            const dy = dot.y - mouse.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (dist < config.shockRadius) {
+                const force = (config.shockRadius - dist) / config.shockRadius;
+                const angle = Math.atan2(dy, dx);
+                dot.vx += Math.cos(angle) * config.shockStrength * force * 10;
+                dot.vy += Math.sin(angle) * config.shockStrength * force * 10;
+            }
+        });
+    });
+
+    // Animation Loop
+    function animate() {
+        ctx.clearRect(0, 0, width, height);
+        
+        dots.forEach(dot => {
+            // Physics: Return to origin
+            const dx = dot.originX - dot.x;
+            const dy = dot.originY - dot.y;
+            
+            dot.vx += dx * config.returnSpeed;
+            dot.vy += dy * config.returnSpeed;
+            
+            // Physics: Friction
+            dot.vx *= config.friction;
+            dot.vy *= config.friction;
+            
+            // Apply Position
+            dot.x += dot.vx;
+            dot.y += dot.vy;
+
+            // Draw Dot
+            ctx.beginPath();
+            ctx.arc(dot.x, dot.y, config.dotSize / 2, 0, Math.PI * 2);
+            
+            // Color blending based on distance from mouse
+            const distFromMouse = Math.hypot(dot.x - mouse.x, dot.y - mouse.y);
+            
+            if (distFromMouse < config.proximity) {
+                const t = 1 - distFromMouse / config.proximity;
+                const r = Math.round(baseRgb.r + (activeRgb.r - baseRgb.r) * t);
+                const g = Math.round(baseRgb.g + (activeRgb.g - baseRgb.g) * t);
+                const b = Math.round(baseRgb.b + (activeRgb.b - baseRgb.b) * t);
+                ctx.fillStyle = `rgb(${r},${g},${b})`;
+            } else {
+                ctx.fillStyle = config.baseColor;
+            }
+            
+            ctx.fill();
+        });
+
+        requestAnimationFrame(animate);
+    }
+
+    // Init
+        window.addEventListener('resize', resize);
+        resize();
+        animate();
+    }
+
+    // Split intro text earlier if needed (ensure function exists)
+    if (typeof splitIntroText === 'function') splitIntroText();
+
+    // ========================================
+    // INTRO ANIMATION HANDLER (robust)
+    // ========================================
+    const intro = document.getElementById('intro-overlay');
+    const INTRO_DELAY_MS = 4500;
+
+    function finishIntro(immediate = false) {
+      if (!intro) return;
+
+      // If immediate, speed up animations
+      if (immediate) {
+        intro.classList.add('fade-out');
+        document.body.classList.add('intro-done');
+        // remove after transition
+        const done = () => {
+          intro.style.display = 'none';
+          intro.removeEventListener('transitionend', done);
+        };
+        intro.addEventListener('transitionend', done);
+        document.body.style.overflow = '';
+        return;
+      }
+
+      // Normal finish: start fade, enable hero, then remove after transition
+      intro.classList.add('fade-out');
+      document.body.classList.add('intro-done');
+
+      const onEnd = (e) => {
+        if (e.target !== intro) return;
+        intro.style.display = 'none';
+        intro.removeEventListener('transitionend', onEnd);
+        document.body.style.overflow = '';
+      };
+
+      intro.addEventListener('transitionend', onEnd);
+    }
+
+    if (intro) {
+      // prevent scroll while intro running
+      document.body.style.overflow = 'hidden';
+
+      // allow skipping the intro by click or any key
+      const skipHandler = () => finishIntro(true);
+      intro.addEventListener('click', skipHandler);
+      document.addEventListener('keydown', skipHandler, { once: true });
+
+      // fallback: finish after delay
+      setTimeout(() => finishIntro(false), INTRO_DELAY_MS);
+    }
+
+      // ... existing init functions ...
+      initMobileMenu();
+      initUserDropdown();
+  // ... rest of your JS ...
+});
+
 // ========================================
 // MOBILE MENU
 // ========================================
@@ -221,36 +462,121 @@ function initFlashMessages() {
 function initSearchEnhancements() {
   const searchForm = document.querySelector('.search-form');
   const searchInput = document.querySelector('.search-input');
-  
-  if (searchForm && searchInput) {
-    // Add search suggestions (basic implementation)
-    searchInput.addEventListener('input', function() {
-      const query = this.value.trim();
-      
-      // Minimum 2 characters for suggestions
-      if (query.length >= 2) {
-        // Could implement autocomplete here
-        // For now, just enable/disable search button
-        const searchBtn = searchForm.querySelector('.search-btn');
-        if (searchBtn) {
-          searchBtn.style.opacity = query.length > 0 ? '1' : '0.5';
-        }
-      }
-    });
-    
-    // Prevent empty searches
-    searchForm.addEventListener('submit', function(e) {
-      const query = searchInput.value.trim();
-      if (query.length === 0) {
-        e.preventDefault();
-        searchInput.focus();
-        searchInput.style.borderColor = '#ef4444';
-        setTimeout(() => {
-          searchInput.style.borderColor = '';
-        }, 1000);
-      }
+  const suggestionsEl = document.querySelector('.search-suggestions');
+
+  if (!searchForm || !searchInput || !suggestionsEl) return;
+
+  let debounceTimer = null;
+  let activeIndex = -1;
+  let currentSuggestions = [];
+
+  function renderSuggestions(list) {
+    suggestionsEl.innerHTML = '';
+    suggestionsEl.setAttribute('aria-hidden', list.length === 0 ? 'true' : 'false');
+    currentSuggestions = list;
+    activeIndex = -1;
+
+    list.forEach((item, idx) => {
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'suggestion-item';
+      el.setAttribute('role', 'option');
+      el.innerHTML = `<strong>${escapeHtml(item.title)}</strong>${item.author ? ' <span class="s-author">by ' + escapeHtml(item.author) + '</span>' : ''}`;
+      el.addEventListener('click', () => {
+        // Navigate to manga detail
+        window.location.href = `/manga/${item.id}`;
+      });
+      suggestionsEl.appendChild(el);
     });
   }
+
+  function clearSuggestions() {
+    suggestionsEl.innerHTML = '';
+    suggestionsEl.setAttribute('aria-hidden', 'true');
+    currentSuggestions = [];
+    activeIndex = -1;
+  }
+
+  function highlight(index) {
+    const items = suggestionsEl.querySelectorAll('.suggestion-item');
+    items.forEach((it, i) => {
+      if (i === index) it.classList.add('active'); else it.classList.remove('active');
+    });
+  }
+
+  // Basic HTML escape
+  function escapeHtml(s) {
+    return (s + '').replace(/[&<>"]+/g, function(ch) {
+      return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[ch] || ch;
+    });
+  }
+
+  searchInput.addEventListener('input', function() {
+    const query = this.value.trim();
+    const searchBtn = searchForm.querySelector('.search-btn');
+    if (searchBtn) searchBtn.style.opacity = query.length > 0 ? '1' : '0.5';
+
+    if (debounceTimer) clearTimeout(debounceTimer);
+    if (query.length < 2) { clearSuggestions(); return; }
+
+    debounceTimer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/search/suggestions?q=${encodeURIComponent(query)}`);
+        if (!res.ok) { clearSuggestions(); return; }
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) { clearSuggestions(); return; }
+
+        renderSuggestions(data);
+      } catch (err) {
+        console.error('Suggestion fetch error', err);
+        clearSuggestions();
+      }
+    }, 180);
+  });
+
+  // Keyboard navigation
+  searchInput.addEventListener('keydown', function(e) {
+    const items = suggestionsEl.querySelectorAll('.suggestion-item');
+    if (!items.length) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeIndex = Math.min(activeIndex + 1, items.length - 1);
+      highlight(activeIndex);
+      items[activeIndex].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeIndex = Math.max(activeIndex - 1, 0);
+      highlight(activeIndex);
+      items[activeIndex].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+      if (activeIndex >= 0 && currentSuggestions[activeIndex]) {
+        e.preventDefault();
+        window.location.href = `/manga/${currentSuggestions[activeIndex].id}`;
+      }
+    } else if (e.key === 'Escape') {
+      clearSuggestions();
+    }
+  });
+
+  // Close on outside click
+  document.addEventListener('click', function(e) {
+    if (!searchForm.contains(e.target)) clearSuggestions();
+  });
+
+  // Ensure suggestions hide on blur after a short delay (allow click)
+  searchInput.addEventListener('blur', () => setTimeout(() => clearSuggestions(), 250));
+
+  // Prevent empty searches
+  searchForm.addEventListener('submit', function(e) {
+    const query = searchInput.value.trim();
+    if (query.length === 0) {
+      e.preventDefault();
+      searchInput.focus();
+      searchInput.style.borderColor = '#ef4444';
+      setTimeout(() => { searchInput.style.borderColor = ''; }, 1000);
+    }
+  });
 }
 
 // ========================================

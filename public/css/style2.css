@@ -1,0 +1,1027 @@
+/* =========================================
+   MANGAVERSE - EXTREME DARK / 3D ANIME THEME
+   ========================================= */
+
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+      --brand-blue: #4876ff;
+      --brand-lime: #d9f154;
+      --brand-orange: #ff7347;
+      --brand-pink: #f7d0e9;
+      --brand-purple: #c084fc;
+      
+      --bg-dark: #09090b; /* Zinc 950 */
+      --card-bg: #18181b; /* Zinc 900 */
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+
+      /* Fluid Typography */
+      --step--2: clamp(0.7813rem, 0.7747rem + 0.0326vw, 0.8rem);
+      --step--1: clamp(0.9375rem, 0.9158rem + 0.1087vw, 1rem);
+      --step-0: clamp(1.125rem, 1.0815rem + 0.2174vw, 1.25rem);
+      --step-1: clamp(1.35rem, 1.2761rem + 0.3696vw, 1.5625rem);
+      --step-2: clamp(1.62rem, 1.5041rem + 0.5793vw, 1.9531rem);
+      --step-3: clamp(1.944rem, 1.771rem + 0.8651vw, 2.4414rem);
+      --step-4: clamp(2.3328rem, 2.0827rem + 1.2504vw, 3.0518rem);
+      --step-5: clamp(2.7994rem, 2.4462rem + 1.7658vw, 3.8147rem);
+      --step-6: clamp(3.3592rem, 2.8691rem + 2.4507vw, 4.7684rem);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: "DM Mono", monospace;
+      margin: 0;
+      color: var(--text-main);
+      background-color: var(--bg-dark);
+      /* Optional texture overlay */
+      background-image: url("https://assets.codepen.io/1385231/bg-texture.webp");
+      background-blend-mode: overlay;
+      background-repeat: repeat;
+    }
+
+    h1, h2, h3 { font-family: "Bowlby One SC", cursive; }
+
+    .main-content { padding: 40px 12px; }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Page Header Styles */
+    .page-header {
+      text-align: center;
+      margin-top: 5rem;
+      margin-bottom: 3rem;
+    }
+    .page-header h1 {
+      font-size: var(--step-5);
+      color: blue
+      text-transform: uppercase;
+      margin: 0;
+      line-height: 1;
+    }
+    .page-header p {
+      font-size: var(--step-0);
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+
+    /* Filter Bar Styles (Brutalist Style) */
+    .filter-bar {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 4rem;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      font-family: "Bowlby One SC";
+      text-decoration: none;
+      color: var(--text-muted);
+      border: 2px solid var(--text-muted);
+      padding: 10px 20px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      color: var(--bg-dark);
+      background-color: var(--brand-blue);
+      border-color: var(--brand-blue);
+      transform: translate(-4px, -4px);
+      box-shadow: 4px 4px 0 var(--text-main);
+    }
+
+    /* GRID LAYOUT */
+    .manga-grid {
+      --min: 280px;
+      --gap: 2rem;
+      display: grid;
+      grid-gap: var(--gap);
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--min)), 1fr));
+    }
+
+    /* CARD STYLES */
+    .manga-card {
+      padding: 1rem 2rem 1.5rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      margin: 0 auto;
+      /* Animation slide up */
+      opacity: 0;
+      transform: translateY(50px);
+      animation: slideInFromBottom 0.8s forwards;
+    }
+    
+    /* Staggered Animation Delay for up to 20 items */
+    .manga-card:nth-child(1) { animation-delay: 0.1s; }
+    .manga-card:nth-child(2) { animation-delay: 0.2s; }
+    .manga-card:nth-child(3) { animation-delay: 0.3s; }
+    .manga-card:nth-child(4) { animation-delay: 0.4s; }
+    /* ... add more if needed via loop or js, kept simple here */
+
+    /* SVG Borders */
+    .horizontal-line, .vertical-line {
+      stroke-width: 2;
+      transition: opacity 0.3s ease;
+      color: var(--text-muted);
+      opacity: 0.4;
+    }
+    .horizontal-line {
+      margin-left: -8rem;
+      margin-right: -8rem;
+      height: auto;
+      width: calc(100% + 5rem);
+    }
+    .vertical-line { position: absolute; top: 0; height: 100%; }
+    .vertical-line.left { left: 1rem; }
+    .vertical-line.right { right: 1rem; }
+
+    .manga-card:hover :is(.horizontal-line, .vertical-line) {
+      opacity: 1;
+      color: var(--brand-blue);
+    }
+
+    /* Image Wrapper */
+    .manga-image-wrapper {
+      position: relative;
+      margin-bottom: 0.5rem;
+      padding-inline: 1rem;
+      height: 350px; /* Fixed height for consistency */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .manga-card img {
+      max-width: 100%;
+      height: 100%; 
+      object-fit: cover;
+      display: block;
+      margin: 0 auto;
+      width: auto;
+      position: relative;
+      z-index: 2;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+      transform-origin: center center;
+      transition: transform 500ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .manga-card:hover img {
+      transform: scale(1.05) rotate(-2deg);
+    }
+
+    /* Scribble SVG Background */
+    .scribble-svg {
+      position: absolute;
+      inset: 0;
+      height: 100%;
+      width: 100%;
+      z-index: 1;
+      animation: squiggle 0.5s infinite;
+      transform: scale(1.2);
+    }
+    .scribble-path {
+      transform-origin: center;
+      opacity: 0.8;
+      transition: stroke-dashoffset 500ms ease-in;
+      stroke-dasharray: 1700;
+      stroke-dashoffset: 1700;
+      fill: none;
+    }
+    .manga-card:hover .scribble-path {
+      stroke-dashoffset: 0;
+    }
+
+    /* Text Content */
+    .title-wrapper {
+      position: relative;
+      min-height: 60px;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .manga-title {
+      font-size: var(--step-0);
+      font-weight: bold;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-main);
+      z-index: 5;
+    }
+
+    .manga-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      color: var(--text-muted);
+      font-family: "DM Mono";
+    }
+
+    /* The Button */
+    .product-button-wrapper {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 200ms;
+      z-index: 10;
+      background: rgba(0,0,0,0.4);
+    }
+    .manga-card:hover .product-button-wrapper {
+      opacity: 1;
+    }
+
+    /* Button CSS from reference */
+    .button-outer {
+      filter: drop-shadow(0 1px 0 #000) drop-shadow(4px 4px 0 #000);
+      transition: filter 0.3s ease-in-out;
+    }
+    .button-outer:hover {
+      filter: drop-shadow(0 0 0 #000);
+    }
+    .button-outer:hover .button-middle {
+      transform: translate(4px, 4px);
+    }
+    .button-middle {
+      display: block;
+      text-decoration: none;
+      transition: transform 0.3s ease-in-out;
+      cursor: pointer;
+      border: none;
+    }
+    .button-inner {
+      /* Bluish gradient to match main site buttons */
+      background: linear-gradient(90deg, #00f3ff 0%, #0066ff 100%);
+      color: #02121a;
+      padding: 0.6rem 1rem;
+      font-family: "Bowlby One SC";
+      font-size: 1rem;
+      clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+    }
+
+    /* Animations */
+    @keyframes slideInFromBottom {
+      0% { opacity: 0; transform: translateY(50px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes squiggle {
+      0% { filter: url("#squiggle-0"); }
+      25% { filter: url("#squiggle-1"); }
+      50% { filter: url("#squiggle-2"); }
+      75% { filter: url("#squiggle-3"); }
+      100% { filter: url("#squiggle-4"); }
+    }
+    
+    .empty-state { text-align: center; color: var(--text-muted); padding: 50px; }
+
+/* =========================================
+   SILVER RAYS INTRO ANIMATION
+   ========================================= */
+/* =========================================
+   INTRO ANIMATION (Blue Theme + Runner)
+   ========================================= */
+#intro-overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, #02040a, #000);
+  z-index: 9999;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s ease, visibility 0.8s;
+}
+
+#intro-overlay.fade-out {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* --- Anime Background Glow --- */
+.anime-bg {
+  position: absolute;
+  inset: -50%;
+  background:
+    radial-gradient(circle, rgba(0,200,255,0.15), transparent 60%);
+  animation: bgPulse 6s infinite alternate;
+}
+
+@keyframes bgPulse {
+  0% { transform: scale(1); opacity: 0.3; }
+  100% { transform: scale(1.2); opacity: 0.6; }
+}
+
+/* --- Floating Shiny Particles --- */
+.particles span {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: rgba(0, 200, 255, 0.9);
+  box-shadow: 0 0 15px rgba(0, 200, 255, 1);
+  border-radius: 50%;
+  animation: float 8s linear infinite;
+}
+
+.particles span:nth-child(n) {
+  top: calc(100% * var(--y));
+  left: calc(100% * var(--x));
+}
+
+.particles span {
+  --x: calc(random() * 1);
+  --y: calc(random() * 1);
+}
+
+
+@keyframes float {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(-120vh); opacity: 1; }
+}
+
+/* --- Content --- */
+.intro-content {
+  position: relative;
+  text-align: center;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* --- Title Animation --- */
+.anime-title {
+  font-size: 4.5rem;
+  font-weight: 900;
+  letter-spacing: 6px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.anime-title span {
+  background: linear-gradient(180deg, #fff, #00eaff, #fff);
+  -webkit-background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 25px rgba(0,200,255,0.9));
+  animation: titleIn 1.2s cubic-bezier(.2,.9,.2,1) forwards;
+}
+
+.anime-title span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+@keyframes titleIn {
+  from {
+    transform: translateY(120%) scale(1.4);
+    opacity: 0;
+    filter: blur(10px);
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+/* --- Flash Slash --- */
+.flash-line {
+  width: 0;
+  height: 2px;
+  margin: 25px auto;
+  background: linear-gradient(90deg, transparent, #00eaff, transparent);
+  box-shadow: 0 0 25px #00eaff;
+  animation: flash 1s ease forwards;
+  animation-delay: 0.6s;
+}
+
+@keyframes flash {
+  to { width: 320px; }
+}
+
+/* --- Loading Bar --- */
+.loading-track {
+  width: 360px;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  overflow: visible;
+  border-radius: 6px;
+  position: relative;
+}
+
+.loading-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #00eaff, #ffffff, #00eaff);
+  box-shadow: 0 0 20px #00eaff;
+  border-radius: 6px;
+  animation: load 4.5s ease forwards;
+}
+
+@keyframes load {
+  to { width: 100%; }
+}
+
+/* Larger circular loader above the track */
+.loader-dot {
+  position: absolute;
+  top: -36px;
+  left: 6px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0%, rgba(0,243,255,0.18) 20%, rgba(0,102,255,0.06) 60%);
+  box-shadow: 0 12px 40px rgba(0,243,255,0.12), 0 4px 12px rgba(0,0,0,0.6) inset;
+  z-index: 30;
+  pointer-events: none;
+  transform-origin: center;
+  animation: loaderPulse 1.2s ease-in-out infinite, loaderMove 4.5s linear 0s 1 forwards;
+}
+
+@keyframes loaderPulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.06); opacity: 0.95; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes loaderMove {
+  0% { left: 6px; }
+  100% { left: calc(100% - 42px); }
+}
+
+/* --- Mobile --- */
+@media (max-width: 768px) {
+  .anime-title { font-size: 2.6rem; }
+  .loading-track { width: 220px; }
+}
+
+
+/* =========================================
+   LAYOUT & TYPOGRAPHY
+   ========================================= */
+.main-content { flex: 1; padding-top: 80px; padding-bottom: 3rem; }
+.container { max-width: 1300px; margin: 0 auto; padding: 0 1.5rem; }
+
+h1, h2, h3, h4 {
+  color: var(--text-primary);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+h1 { font-size: 2.5rem; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+
+/* =========================================
+   NAVBAR (Glass Tech Look)
+   ========================================= */
+/* =========================================
+   NAVBAR (Centered Links, Search Bottom)
+   ========================================= */
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 1000;
+  padding: 0.8rem 0 1rem 0; /* Extra padding bottom for search */
+  box-shadow: none;
+}
+
+.navbar .container {
+  display: flex;
+  flex-wrap: wrap; /* Allows search to drop to the next line */
+  align-items: center;
+  /* This ensures the items spread out: Logo Left, Links Center, Login Right */
+  justify-content: space-between; 
+}
+
+/* 1. BRAND LOGO - Extreme Left */
+.nav-brand {
+  order: 1;
+  flex: 0 0 auto; /* Don't stretch */
+  margin-right: 1rem;
+}
+
+.nav-brand a {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  display: flex; align-items: center; gap: 0.8rem;
+  letter-spacing: 1px;
+  text-decoration: none;
+}
+.nav-brand i { color: var(--red); filter: drop-shadow(0 0 5px var(--red)); }
+
+/* 2. NAVIGATION LINKS - Center Middle */
+.nav-links {
+  order: 2;
+  flex: 1 1 auto; /* Grow to fill the middle space */
+  display: flex;
+  justify-content: center; /* Center the links */
+  gap: 2.5rem;
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-decoration: none; /* REMOVED UNDERLINE */
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+/* Remove the underline animation bar */
+.nav-link::after {
+  display: none !important;
+}
+
+/* Hover Effect: Simple Glow */
+.nav-link:hover {
+  color: var(--red);
+  text-shadow: 0 0 15px rgba(255, 0, 60, 0.8);
+}
+
+/* 3. NAV ACTIONS WRAPPER */
+/* We use 'contents' to make the form and buttons behave as direct children of the container */
+.nav-actions {
+  display: contents;
+}
+
+/* 4. LOGIN / SIGN UP / USER MENU - Extreme Right */
+/* Targeting the links inside nav-actions OR the user-menu div */
+.nav-actions > .btn, 
+.user-menu {
+  order: 3;
+  flex: 0 0 auto;
+  margin-left: 1rem;
+}
+
+/* Button Styling (Login/Signup) */
+.btn-outline, .btn-primary {
+  text-decoration: none;
+  margin-left: 10px;
+}
+
+/* User Dropdown Button */
+.user-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid #333;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 0.5rem;
+  transition: 0.3s;
+}
+.user-btn:hover {
+  border-color: var(--red);
+  box-shadow: 0 0 10px rgba(255, 0, 60, 0.2);
+}
+
+/* Simple inline user area: username + logout on one row */
+.user-area {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  order: 3;
+  margin-left: 1rem;
+}
+.user-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+.user-logout {
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 0.45rem 0.6rem;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: var(--transition);
+}
+.user-logout:hover {
+  color: #fff;
+  border-color: rgba(255,255,255,0.06);
+  box-shadow: 0 0 8px rgba(255,255,255,0.04);
+}
+
+/* 5. SEARCH BAR - Next Line, Centered (glassy, borderless, circular) */
+.search-form {
+  order: 4;
+  width: 100%; /* Take full width of the new line */
+  margin-top: 15px; /* Spacing from the top row */
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+/* Glassy rounded container */
+.search-form > .search-input,
+.search-form > .search-btn { box-sizing: border-box; }
+
+.search-form {
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 640px; /* Limit width */
+  /* input carries the glassy pill look; remove outer container visuals */
+  background: rgba(255,255,255,0.04);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  backdrop-filter: blur(8px) saturate(140%);
+  padding: 0.6rem 1rem;
+  border-radius: 999px; /* fully rounded */
+  font-family: inherit;
+  transition: transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms ease;
+  border: none; /* remove border */
+  color: #fff;
+  box-shadow: none;
+}
+
+.search-form {
+  /* Remove the outer rounded container so only the input + button are visible */
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 0 !important;
+  margin-top: 0.5rem; /* keep slight spacing if needed */
+  border-radius: 0 !important;
+  border: none !important;
+  transition: none;
+}
+
+.search-form:focus-within {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.75), 0 6px 24px rgba(0,0,0,0.5);
+  backdrop-filter: blur(10px) saturate(160%);
+}
+
+.search-input:focus { outline: none; }
+
+.search-input::placeholder { color: rgba(255,255,255,0.5); }
+
+.search-btn {
+  background: linear-gradient(180deg, rgba(0,243,255,0.14), rgba(0,102,255,0.14));
+  color: var(--text-primary);
+  border: none;
+  width: 40px; height: 40px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.search-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 0 rgba(0,0,0,0.5), 0 18px 28px rgba(0,243,255,0.06); }
+
+.search-btn i { font-size: 14px; }
+
+/* Search suggestions dropdown */
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  max-width: 640px;
+  margin: 0 auto;
+  background: rgba(8,10,12,0.9);
+  color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+  overflow: hidden;
+  z-index: 1200;
+  display: none;
+}
+.search-suggestions[aria-hidden="false"] { display: block; }
+.search-suggestions .suggestion-item {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.search-suggestions .suggestion-item + .suggestion-item { border-top: 1px solid rgba(255,255,255,0.04); }
+.search-suggestions .suggestion-item .s-author { color: rgba(255,255,255,0.6); font-weight: 500; font-size: 0.85rem; }
+.search-suggestions .suggestion-item.active, .search-suggestions .suggestion-item:hover { background: rgba(255,255,255,0.02); }
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 900px) {
+  .nav-links { display: none; } /* Hide links, show hamburger */
+  
+  /* On mobile, Brand is Left, Hamburger is Right */
+  .mobile-menu-btn { 
+    display: block; 
+    order: 3; 
+    color: var(--red); 
+    font-size: 1.5rem;
+    background: none; border: none; cursor: pointer;
+  }
+  
+  /* Hide standard auth buttons on mobile header to save space */
+  .nav-actions > .btn { display: none; }
+  .user-menu { display: none; } 
+
+  .search-form { margin-top: 10px; }
+  .search-btn { right: auto; } /* Reset search button positioning for mobile */
+}
+/* =========================================
+   BUTTONS (3D Shiny / Anime Style)
+   ========================================= */
+.btn {
+  display: inline-block;
+  padding: 0.45rem 0.9rem; /* smaller */
+  border-radius: 999px; /* pill / fully rounded */
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
+  cursor: pointer; transition: transform 180ms ease, box-shadow 200ms ease, background 200ms ease;
+  border: none; font-size: 0.85rem; position: relative; overflow: hidden;
+  min-height: 36px; display: inline-flex; align-items: center; gap: 0.5rem; justify-content: center;
+}
+
+/* Shiny Sweep Effect (subtle) */
+.btn::after {
+  content: '';
+  position: absolute; top: 0; left: -120%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  transform: skewX(-20deg);
+  transition: left 420ms cubic-bezier(.2,.9,.2,1);
+}
+.btn:hover::after { left: 120%; }
+
+/* Red 3D Button */
+.btn-primary {
+  background: linear-gradient(90deg, #00f3ff 0%, #0066ff 100%);
+  color: #02121a;
+  box-shadow: 0 6px 0 rgba(0,102,255,0.12), 0 10px 30px rgba(0,102,255,0.06);
+  transform: translateY(0);
+}
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 0 rgba(0,102,255,0.14), 0 18px 40px rgba(0,102,255,0.09);
+}
+.btn-primary:active {
+  transform: translateY(1px) scale(0.997);
+  box-shadow: 0 4px 0 rgba(0,102,255,0.08);
+}
+
+/* Silver/Green Outline Button */
+.btn-outline {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 6px 0 rgba(0,0,0,0.45);
+}
+.btn-outline:hover {
+  background: rgba(255,255,255,0.03);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 0 rgba(0,0,0,0.45), 0 18px 30px rgba(0,0,0,0.25);
+}
+
+.btn-large { padding: 0.6rem 1.4rem; font-size: 0.95rem; border-radius: 999px; }
+
+.btn-small { padding: 0.35rem 0.7rem; font-size: 0.78rem; border-radius: 999px; }
+
+
+/* =========================================
+   CLASSY CYBER FOOTER
+   ========================================= */
+.footer {
+  background: #020202;
+  position: relative;
+  margin-top: auto;
+  padding: 4rem 0 2rem;
+  overflow: hidden;
+}
+
+/* Neon Gradient Top Border */
+.footer-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--red), var(--blue), var(--green));
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr; /* Brand section is wider */
+  gap: 3rem;
+  margin-bottom: 3rem;
+}
+
+/* Brand Section */
+.brand-section p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-top: 1rem;
+  max-width: 300px;
+  line-height: 1.6;
+}
+
+.footer-section h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.5rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.footer-logo-text {
+  background: linear-gradient(45deg, #fff, #ccc);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.footer-section h3 i {
+  color: var(--red);
+  text-shadow: 0 0 10px var(--glow-red);
+}
+
+.footer-section h4 {
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  position: relative;
+  display: inline-block;
+}
+
+/* Underline for headings */
+.footer-section h4::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 30px;
+  height: 2px;
+  background: var(--blue);
+  box-shadow: 0 0 5px var(--blue);
+}
+
+/* Links Styling */
+.footer-links {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-links li {
+  margin-bottom: 0.8rem;
+}
+
+.footer-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.footer-links a i {
+  font-size: 0.7rem;
+  color: var(--border); /* Dark initially */
+  transition: 0.3s;
+}
+
+/* Hover Effect: Slide Right + Glow */
+.footer-links a:hover {
+  color: #fff;
+  transform: translateX(5px);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.footer-links a:hover i {
+  color: var(--green); /* Icon lights up green */
+}
+
+/* Social Buttons */
+.social-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.social-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.1rem;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.social-btn:hover {
+  transform: translateY(-3px) scale(1.1);
+  border-color: transparent;
+}
+
+/* Individual Social Colors */
+.social-btn.twitter:hover { background: #1da1f2; box-shadow: 0 0 15px #1da1f2; }
+.social-btn.discord:hover { background: #5865f2; box-shadow: 0 0 15px #5865f2; }
+.social-btn.reddit:hover { background: #ff4500; box-shadow: 0 0 15px #ff4500; }
+.social-btn.github:hover { background: #333; box-shadow: 0 0 15px #ffffff; }
+
+/* Footer Bottom */
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer-bottom p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.footer-bottom i {
+  color: var(--red);
+}
+
+.footer-legal {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.footer-legal a {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.footer-legal a:hover {
+  color: var(--blue);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 900px) {
+  .footer-content {
+    grid-template-columns: 1fr; /* Stack vertically */
+    gap: 2rem;
+    text-align: center;
+  }
+  
+  .brand-section p {
+    margin: 1rem auto;
+  }
+  
+  .footer-section h3, 
+  .footer-links a, 
+  .social-links {
+    justify-content: center;
+  }
+  
+  .footer-section h4::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+\
+
+/* Mobile */
+@media (max-width: 768px) {
+  .hero-content h1 { font-size: 2rem; }
+  .manga-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  .manga-cover { height: 240px; }
+  .navbar { background: #000; }
+}
