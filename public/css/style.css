@@ -649,7 +649,6 @@ h1 { font-size: 2.5rem; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
   box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
 }
 
-/* --- TEXT CONTENT OVERLAY --- */
 .hero-container-overlay {
   position: relative;
   z-index: 10; /* Sits ON TOP of the cards */
