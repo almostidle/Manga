@@ -1241,6 +1241,475 @@ h1 { font-size: 2.5rem; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
     }
 }
 
+/* --- REDDIT STYLE COMMENT SECTION --- */
+
+/* 1. The Container (No more fixed height/scroll) */
+.discussion-feed-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+    margin-bottom: 4rem;
+}
+
+/* 2. Individual Comment Card */
+.comment-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    background: transparent; /* Reddit usually has transparent bg for comments */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.2s;
+}
+
+.comment-card:hover {
+    background: rgba(255, 255, 255, 0.02); /* Very subtle hover effect */
+}
+
+/* Left Sidebar (Avatar + Thread Line) */
+.comment-sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 40px;
+}
+
+.comment-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: var(--brand-blue, #4876ff);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* The vertical line looking like a thread */
+.comment-thread-line {
+    width: 2px;
+    flex-grow: 1;
+    background: rgba(255, 255, 255, 0.1);
+    min-height: 20px;
+}
+
+/* Right Side (Content) */
+.comment-main {
+    flex-grow: 1;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.comment-author {
+    color: #fff;
+    font-weight: 600;
+}
+
+.comment-meta {
+    color: var(--text-muted, #888);
+}
+
+.comment-body {
+    color: var(--text-main, #e0e0e0);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* 3. The New Input Box (Block Style) */
+.reddit-input-wrapper {
+    background: #1a1a1a; /* Darker than background */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 2rem;
+}
+
+.input-header {
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.85rem;
+    color: var(--text-muted, #888);
+}
+
+.reddit-textarea {
+    width: 100%;
+    min-height: 120px;
+    background: transparent;
+    border: none;
+    padding: 1rem;
+    color: white;
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+    outline: none;
+    display: block;
+}
+
+.input-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.comment-btn {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.comment-btn:hover {
+    background: var(--brand-blue, #4876ff);
+    color: white;
+}
+/* --- HYBRID CHAT STYLES --- */
+
+/* 1. Divider between Hero and Chat */
+.chat-divider {
+    text-align: center;
+    margin: 3rem 0 2rem 0;
+    position: relative;
+    color: #888;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+}
+.chat-divider::before, .chat-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 30%;
+    height: 1px;
+    background: #333;
+}
+.chat-divider::before { left: 0; }
+.chat-divider::after { right: 0; }
+
+/* 2. Chat Message List Container */
+.chat-message-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 800px; /* Keep chat narrow for readability */
+    margin: 0 auto;
+    padding-bottom: 20px;
+}
+
+/* 3. Message Bubbles (WhatsApp/Group Chat Style) */
+.msg-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    max-width: 80%;
+    width: fit-content;
+}
+
+.msg-avatar {
+    width: 35px; height: 35px;
+    background: #333;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #aaa;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.msg-bubble {
+    padding: 10px 15px;
+    border-radius: 18px;
+    position: relative;
+    line-height: 1.5;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.msg-name {
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #a970ff; /* Purple for others */
+}
+
+.msg-text { color: inherit; }
+
+.msg-time {
+    font-size: 0.65rem;
+    text-align: right;
+    margin-top: 5px;
+    opacity: 0.6;
+}
+
+/* Variant: Other People (Left) */
+.msg-other .msg-bubble {
+    background: #222;
+    color: #e0e0e0;
+    border-bottom-left-radius: 4px;
+}
+
+/* Variant: Me (Right) */
+.msg-me {
+    align-self: flex-end; /* Push to right side */
+}
+.msg-me .msg-bubble {
+    background: #4876ff; /* Blue Brand Color */
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+.msg-me .msg-time { color: rgba(255,255,255,0.8); }
+
+/* 4. THE FLOATING INPUT BAR (KEY FEATURE) */
+.floating-input-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(18, 18, 18, 0.95); /* Semi-transparent black */
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding: 15px;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+}
+
+.chat-bar-form {
+    display: flex;
+    width: 100%;
+    max-width: 800px; /* Match chat width */
+    gap: 10px;
+    background: #2a2a2a;
+    padding: 5px;
+    border-radius: 30px;
+    border: 1px solid #444;
+    transition: 0.3s;
+}
+
+.chat-bar-form:focus-within {
+    border-color: #4876ff;
+    box-shadow: 0 0 15px rgba(72, 118, 255, 0.2);
+}
+
+.chat-input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1rem;
+    outline: none;
+}
+
+.chat-send-btn {
+    width: 45px; height: 45px;
+    border-radius: 50%;
+    border: none;
+    background: #4876ff;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.chat-send-btn:hover {
+    transform: scale(1.1);
+    background: #3a65e0;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeIn 0.3s ease-out forwards; }
+
+
+/* --- BOXED CHAT MODULE --- */
+
+/* 1. Main Container (The Box) */
+.chat-module-container {
+    max-width: 1500px;
+    margin: 3rem auto 5rem auto; /* Spacing from hero and footer */
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+}
+
+/* 2. Header */
+.chat-box-header {
+    background: #222;
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+.live-status {
+    color: #ff4444;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 1px;
+}
+
+.pulsing-dot {
+    width: 8px; height: 8px;
+    background: #ff4444;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #ff4444;
+    animation: pulse 1.5s infinite;
+}
+
+/* 3. The Scrollable Window (Fixed Height) */
+.chat-scroll-window {
+    height: 500px; /* Fixed height as requested */
+    overflow-y: auto;
+    padding: 20px;
+    background: #141414;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+    
+    /* Subtle dot pattern background */
+    background-image: radial-gradient(#2a2a2a 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+/* 4. Input Footer Area */
+.chat-input-footer {
+    background: #1a1a1a;
+    padding: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.boxed-chat-form { width: 100%; }
+
+.input-group {
+    display: flex;
+    align-items: center;
+    background: #0f0f0f;
+    border: 1px solid #333;
+    border-radius: 30px;
+    padding: 5px;
+    transition: 0.3s;
+}
+
+.input-group:focus-within {
+    border-color: var(--brand-blue, #4876ff);
+    box-shadow: 0 0 10px rgba(72, 118, 255, 0.1);
+}
+
+.boxed-input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1rem;
+    outline: none;
+}
+
+.boxed-send-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: var(--brand-blue, #4876ff);
+    color: white;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s;
+    margin-right: 2px;
+}
+
+.boxed-send-btn:hover { transform: scale(1.1); }
+
+.login-blocker { text-align: center; width: 100%; }
+
+/* --- MESSAGE BUBBLES --- */
+.msg-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    max-width: 85%;
+    width: fit-content;
+}
+
+.msg-avatar {
+    width: 32px; height: 32px;
+    background: #333;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #bbb;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.msg-bubble {
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.msg-name { font-size: 0.75rem; color: #a970ff; font-weight: bold; margin-bottom: 2px; }
+.msg-time { font-size: 0.65rem; color: rgba(255,255,255,0.5); text-align: right; margin-top: 4px; }
+
+/* Others (Left) */
+.msg-other .msg-bubble {
+    background: #262626;
+    color: #eee;
+    border-bottom-left-radius: 4px;
+}
+
+/* Me (Right) */
+.msg-me { align-self: flex-end; }
+.msg-me .msg-bubble {
+    background: var(--brand-blue, #4876ff);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+/* Custom Scrollbar */
+.chat-scroll-window::-webkit-scrollbar { width: 8px; }
+.chat-scroll-window::-webkit-scrollbar-track { background: #141414; }
+.chat-scroll-window::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+.chat-scroll-window::-webkit-scrollbar-thumb:hover { background: #555; }
+
+/* Animations */
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+@keyframes fadeIn { from{opacity:0; transform:translateY(5px);} to{opacity:1; transform:translateY(0);} }
+.fade-in { animation: fadeIn 0.3s ease-out; }
+.empty-chat-state { text-align: center; color: #555; margin-top: 120px; }
 /* =========================================
    MANGA DETAIL PAGE (Wireframe Implementation)
    ========================================= */

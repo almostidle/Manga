@@ -4,9 +4,7 @@ const Thread = require('../models/Thread');
 const Manga = require('../models/Manga');
 const { isAuthenticated } = require('../middleware/auth');
 
-// GET /discussions - List all discussion threads
 // GET /discussions - List all discussion threads with Search
-// GET /discussions - List all threads (Search by Title, Content, or Manga Name)
 router.get('/', async (req, res) => {
   try {
     const { search } = req.query;
@@ -14,7 +12,7 @@ router.get('/', async (req, res) => {
 
     if (search) {
       const safeSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(safeSearch, 'i'); // Case-insensitive regex
+      const regex = new RegExp(safeSearch, 'i');
 
       // STEP 1: Find any Manga that matches the search name
       const matchingMangas = await Manga.find({ title: regex }).select('_id');
@@ -23,9 +21,9 @@ router.get('/', async (req, res) => {
       // STEP 2: Find Threads that match Title OR Content OR the Found Manga IDs
       dbQuery = {
         $or: [
-          { title: regex },                  // Match Thread Title
-          { content: regex },                // Match Thread Content
-          { manga: { $in: matchingMangaIds } } // Match Manga Name
+          { title: regex },
+          { content: regex },
+          { manga: { $in: matchingMangaIds } }
         ]
       };
     }
@@ -66,7 +64,7 @@ router.get('/create', isAuthenticated, async (req, res) => {
   }
 });
 
-// POST /discussions/create - Create new thread (CRUD: Create)
+// POST /discussions/create - Create new thread
 router.post('/create', isAuthenticated, async (req, res) => {
   try {
     const { manga, title, content } = req.body;
@@ -90,6 +88,23 @@ router.post('/create', isAuthenticated, async (req, res) => {
     console.error(error);
     req.flash('error', 'Error creating discussion');
     res.redirect('/discussions/create');
+  }
+});
+
+// =========================================================
+//  NEW: API Endpoint for Live Polling (AJAX)
+// =========================================================
+router.get('/:id/api/replies', async (req, res) => {
+  try {
+    const thread = await Thread.findById(req.params.id)
+      .populate('replies.user', 'username'); // Must populate to show names
+
+    if (!thread) return res.status(404).json([]);
+
+    res.json(thread.replies);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -121,38 +136,68 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /discussions/:id/reply - Add reply to thread (CRUD: Create)
+// =========================================================
+//  UPDATED: Reply Route (Handles JSON/AJAX + Standard Form)
+// =========================================================
 router.post('/:id/reply', isAuthenticated, async (req, res) => {
   try {
     const { content } = req.body;
 
+    // 1. Validation
     if (!content) {
+      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        return res.status(400).json({ error: 'Content required' });
+      }
       req.flash('error', 'Reply content is required');
       return res.redirect(`/discussions/${req.params.id}`);
     }
 
     const thread = await Thread.findById(req.params.id);
     if (!thread) {
+      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        return res.status(404).json({ error: 'Thread not found' });
+      }
       req.flash('error', 'Discussion not found');
       return res.redirect('/discussions');
     }
 
-    thread.replies.push({
+    // 2. Create Reply Object
+    const newReply = {
       user: req.session.user.id,
-      content
-    });
+      content,
+      createdAt: new Date()
+    };
 
+    thread.replies.push(newReply);
     await thread.save();
+
+    // 3. Handle AJAX (JSON Response)
+    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+      // We manually construct the response because 'newReply' user is just an ID.
+      // We trust req.session.user contains the username.
+      const responseReply = {
+        ...thread.replies[thread.replies.length - 1].toObject(), // Get the saved object (with _id)
+        user: { username: req.session.user.username } // Attach username for frontend display
+      };
+      
+      return res.json({ success: true, reply: responseReply });
+    }
+
+    // 4. Handle Standard Post (Page Reload)
     req.flash('success', 'Reply added successfully!');
     res.redirect(`/discussions/${req.params.id}`);
+
   } catch (error) {
     console.error(error);
+    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+      return res.status(500).json({ error: 'Server error' });
+    }
     req.flash('error', 'Error adding reply');
     res.redirect(`/discussions/${req.params.id}`);
   }
 });
 
-// DELETE /discussions/:id - Delete thread (CRUD: Delete)
+// DELETE /discussions/:id - Delete thread
 router.delete('/:id', isAuthenticated, async (req, res) => {
   try {
     const thread = await Thread.findById(req.params.id);
@@ -177,6 +222,5 @@ router.delete('/:id', isAuthenticated, async (req, res) => {
     res.redirect('/discussions');
   }
 });
-
 
 module.exports = router;
