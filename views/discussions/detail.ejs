@@ -3,12 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= thread.title %> | MangaVerse</title>
+  <title><%= thread.title %> | Discussion</title>
+  
   <link rel="stylesheet" href="/css/style2.css">
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Bowlby+One+SC&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 </head>
 <body>
+
   <%- include('../partials/navbar') %>
   
   <main class="main-content">
@@ -20,7 +23,8 @@
         
         <div class="hero-image-card">
             <img src="<%= thread.manga.coverImage %>" alt="<%= thread.manga.title %>">
-            <div class="screentone-overlay"></div> </div>
+            <div class="screentone-overlay"></div> 
+        </div>
 
         <div class="hero-info-stack">
             
@@ -54,62 +58,176 @@
                 
                 <div class="pill-stats">
                     <span><i class="fas fa-eye"></i> <%= thread.views %> Views</span>
-                    <span><i class="fas fa-reply"></i> <%= thread.replies.length %> Replies</span>
                 </div>
             </div>
-
         </div>
       </div>
 
-      <div class="replies-container-pill">
-        <div class="replies-header">
-            <h3><i class="fas fa-comments"></i> ALL COMMUNICATIONS</h3>
+
+      <div class="chat-module-container">
+        
+        <div class="chat-box-header">
+            <div class="live-status">
+                <span class="pulsing-dot"></span> Discussion window
+            </div>
+            <span class="msg-count">
+                <i class="fas fa-comments"></i> <span id="msgCount"><%= thread.replies.length %></span>
+            </span>
         </div>
 
-        <div class="replies-scroll-window">
+        <div class="chat-scroll-window" id="chatWindow">
             <% if (thread.replies.length > 0) { %>
                 <% thread.replies.forEach(reply => { %>
-                    <div class="reply-bubble">
-                        <div class="reply-user">
-                            <span class="r-avatar"><%= reply.user.username.charAt(0).toUpperCase() %></span>
-                            <span class="r-name"><%= reply.user.username %></span>
-                            <span class="r-date"><%= new Date(reply.createdAt).toLocaleDateString() %></span>
-                        </div>
-                        <div class="reply-text">
-                            <%= reply.content %>
+                    <% const isMe = currentUser && reply.user._id.toString() === currentUser.id; %>
+                    
+                    <div class="msg-row <%= isMe ? 'msg-me' : 'msg-other' %>">
+                        <% if (!isMe) { %>
+                            <div class="msg-avatar" title="<%= reply.user.username %>">
+                                <%= reply.user.username.charAt(0).toUpperCase() %>
+                            </div>
+                        <% } %>
+                        
+                        <div class="msg-bubble">
+                            <% if (!isMe) { %>
+                                <div class="msg-name"><%= reply.user.username %></div>
+                            <% } %>
+                            <div class="msg-text"><%= reply.content %></div>
+                            <div class="msg-time">
+                                <%= new Date(reply.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                            </div>
                         </div>
                     </div>
                 <% }) %>
             <% } else { %>
-                <div class="empty-replies">
-                    <p>No signals detected. Start the transmission.</p>
+                <div class="empty-chat-state">
+                    <i class="fas fa-ghost" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <p>No messages yet.<br>Start the conversation!</p>
                 </div>
             <% } %>
         </div>
-      </div>
 
-      <div class="reply-input-pill">
-        <% if (currentUser) { %>
-            <form action="/discussions/<%= thread._id %>/reply" method="POST" class="reply-flex-form">
-                <div class="input-wrapper">
-                    <i class="fas fa-pen-nib"></i>
-                    <textarea name="content" placeholder="Enter your response protocol..." required></textarea>
+        <div class="chat-input-footer">
+            <% if (currentUser) { %>
+                <form id="chatForm" class="boxed-chat-form">
+                    <div class="input-group">
+                        <input type="text" id="msgInput" class="boxed-input" placeholder="Type your message..." autocomplete="off">
+                        <button type="submit" class="boxed-send-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+            <% } else { %>
+                <div class="login-blocker">
+                    <a href="/auth/login" class="btn btn-outline btn-sm">Log in to Chat</a>
                 </div>
-                <button type="submit" class="btn btn-primary send-btn">
-                    SEND <i class="fas fa-paper-plane"></i>
-                </button>
-            </form>
-        <% } else { %>
-            <div class="login-prompt">
-                <a href="/auth/login" class="btn btn-outline">Login to Reply</a>
-            </div>
-        <% } %>
+            <% } %>
+        </div>
+
       </div>
 
     </div>
   </main>
 
   <%- include('../partials/footer') %>
-  <script src="/js/main.js"></script>
+
+  <script>
+      const threadId = "<%= thread._id %>";
+      const currentUsername = "<%= currentUser ? currentUser.username : '' %>";
+      const chatWindow = document.getElementById('chatWindow');
+      const chatForm = document.getElementById('chatForm');
+      const countSpan = document.getElementById('msgCount');
+
+      // 1. Scroll Logic
+      function scrollToBottom() {
+          if(chatWindow) {
+              chatWindow.scrollTop = chatWindow.scrollHeight;
+          }
+      }
+      
+      // Initial Scroll
+      window.onload = scrollToBottom;
+
+      // 2. Generate HTML for Bubble
+      function createBubbleHTML(reply) {
+          const isMe = reply.user.username === currentUsername;
+          const time = new Date(reply.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+          const initial = reply.user.username.charAt(0).toUpperCase();
+
+          return `
+            <div class="msg-row ${isMe ? 'msg-me' : 'msg-other'} fade-in">
+                ${!isMe ? `<div class="msg-avatar">${initial}</div>` : ''}
+                <div class="msg-bubble">
+                    ${!isMe ? `<div class="msg-name">${reply.user.username}</div>` : ''}
+                    <div class="msg-text">${reply.content}</div>
+                    <div class="msg-time">${time}</div>
+                </div>
+            </div>
+          `;
+      }
+
+      // 3. Handle Form Submit (AJAX)
+      if (chatForm) {
+          chatForm.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const input = document.getElementById('msgInput');
+              const content = input.value;
+              
+              if(!content.trim()) return;
+
+              try {
+                  const res = await fetch(`/discussions/${threadId}/reply`, {
+                      method: 'POST',
+                      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+                      body: JSON.stringify({ content })
+                  });
+                  const data = await res.json();
+
+                  if (data.success) {
+                      // Remove empty state if present
+                      const empty = document.querySelector('.empty-chat-state');
+                      if(empty) empty.remove();
+
+                      // Add Message
+                      chatWindow.insertAdjacentHTML('beforeend', createBubbleHTML(data.reply));
+                      
+                      // Update Count
+                      if(countSpan) countSpan.innerText = parseInt(countSpan.innerText) + 1;
+
+                      input.value = '';
+                      scrollToBottom();
+                  }
+              } catch(err) { console.error(err); }
+          });
+      }
+
+      // 4. Poll for new messages (Every 2 seconds)
+      let knownCount = <%= thread.replies.length %>;
+      setInterval(async () => {
+          try {
+              const res = await fetch(`/discussions/${threadId}/api/replies`);
+              const replies = await res.json();
+              
+              if (replies.length > knownCount) {
+                  const newMsgs = replies.slice(knownCount);
+                  newMsgs.forEach(msg => {
+                      if (msg.user.username !== currentUsername) {
+                          chatWindow.insertAdjacentHTML('beforeend', createBubbleHTML(msg));
+                      }
+                  });
+                  
+                  // Update UI
+                  knownCount = replies.length;
+                  if(countSpan) countSpan.innerText = knownCount;
+                  
+                  // Clean up empty state
+                  const empty = document.querySelector('.empty-chat-state');
+                  if(empty && replies.length > 0) empty.remove();
+
+                  scrollToBottom();
+              }
+          } catch(e) {}
+      }, 2000);
+  </script>
+
 </body>
 </html>

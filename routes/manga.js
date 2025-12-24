@@ -72,6 +72,11 @@ router.post('/:id/rate', isAuthenticated, async (req, res) => {
       req.flash('error', 'Invalid rating value');
       return res.redirect(`/manga/${mangaId}`);
     }
+    await Rating.findOneAndUpdate(
+      { manga: mangaId, user: userId }, // Search Query
+      { rating: rating },               // Update Data
+      { upsert: true, new: true }       // Options: Create if missing
+    );
 
     // Check if user already rated
     let existingRating = await Rating.findOne({
